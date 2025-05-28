@@ -22,21 +22,24 @@ public class UserMain {
                     break;
                 case "2":
                     int useridNUM = login(scanner);
-                    if(useridNUM != -1){
-                        user.printUserInfo(useridNUM);
-                        user.printUserMenu();
-                        System.out.print("请输入您的选择（数字）：");
-                        String userInput = scanner.nextLine().trim();
-                        switch (userInput){
-                            case "1":
-                                break;
-                            case "2":
-                                break;
-                            case "0":
-                                break;
+                    user.printUserInfo(useridNUM);
+                    while (MenuFlag) {
+                        if (useridNUM != -1) {
+                            user.printUserMenu();
+                            System.out.print("请输入您的选择（数字）：");
+                            String userInput = scanner.nextLine().trim();
+                            switch (userInput) {
+                                case "1":
+                                    user.printUVehicleInfo(useridNUM);
+                                    break;
+                                case "2":
+                                    break;
+                                case "0":
+                                    break;
+                            }
+                        } else {
+                            System.out.println("登陆失败，请检查用户名或密码");
                         }
-                    }else {
-                        System.out.println("登陆失败，请检查用户名或密码");
                     }
                     break;
                 case "0":
