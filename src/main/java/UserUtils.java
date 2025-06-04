@@ -63,26 +63,61 @@ public class UserUtils {
         }
     }
 
-public  boolean canCreateWorkOrder(int userID, int vehicleID) {
-        // 1. 查询车辆状态
-        String sql = "SELECT status FROM vehicle WHERE vehicleID = ? AND userID = ?";
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, vehicleID);
-            stmt.setInt(2, userID);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    int status = rs.getInt("status");
-                    return status == 0;  // 只有status=0才允许维修
-                } else {
-                    return false; // 车辆不存在或不属于该用户
+    public boolean canCreateWorkOrder(int userID, int vehicleID) {
+        String sqlVehicle = "SELECT status FROM vehicle WHERE vehicleID = ? AND userID = ?";
+        // 用 orderID 代替 createTime，降序取最新工单
+        String sqlLatestWorkOrder = "SELECT assignment FROM workorder WHERE vehicleID = ? AND userID = ? ORDER BY orderID DESC LIMIT 1";
+
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
+            // 1. 检查车辆状态，假设status==0表示正常
+            try (PreparedStatement psVehicle = conn.prepareStatement(sqlVehicle)) {
+                psVehicle.setInt(1, vehicleID);
+                psVehicle.setInt(2, userID);
+                try (ResultSet rs = psVehicle.executeQuery()) {
+                    if (rs.next()) {
+                        int status = rs.getInt("status");
+                        if (status != 0) {
+                            System.out.println("车辆状态不允许维修");
+                            return false;
+                        }
+                    } else {
+                        System.out.println("车辆不存在或不属于该用户");
+                        return false;
+                    }
                 }
             }
+
+            // 2. 查询该车辆最新工单状态
+            try (PreparedStatement psWorkOrder = conn.prepareStatement(sqlLatestWorkOrder)) {
+                psWorkOrder.setInt(1, vehicleID);
+                psWorkOrder.setInt(2, userID);
+                try (ResultSet rs = psWorkOrder.executeQuery()) {
+                    if (rs.next()) {
+                        String assignment = rs.getString("assignment");
+                        System.out.println("最新工单状态：" + assignment);
+
+                        // 只有修理完毕才能新建工单
+                        if (!"修理完毕".equals(assignment)) {
+                            System.out.println("车辆之前的工单尚未完成，不能创建新的工单");
+                            return false;
+                        }
+                    } else {
+                        // 之前无工单，允许新建
+                        System.out.println("该车辆暂无工单，允许创建新工单");
+                        return true;
+                    }
+                }
+            }
+
+            return true;
+
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
     }
+
+
 
     public boolean submitOrder(int userID, int vehicleID, String description){
         // 先判断车辆是否允许创建工单
