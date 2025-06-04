@@ -9,7 +9,7 @@ public class UserUtils {
     public void printUserMenu(){
         System.out.println("============= 用户登录后界面 ============");
         System.out.println("1. 查看您的车辆");
-        System.out.println("2. 功能2");
+        System.out.println("2. 为您的车辆提交订单");
         System.out.println("3. 功能3");
         System.out.println("0. 退出");
         System.out.println("=======================================");
@@ -25,7 +25,7 @@ public class UserUtils {
                     String username = rs.getString("username");
                     System.out.println("欢迎回来，用户名： "+ username);
                 } else {
-                    System.out.println("查询出错，有bug");
+                    System.out.println("查询出错");
                 }
             }
         } catch (SQLException e) {
@@ -59,6 +59,31 @@ public class UserUtils {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+public  boolean canCreateWorkOrder(int userID, int vehicleID) {
+        // 1. 查询车辆状态
+        String sql = "SELECT status FROM vehicle WHERE vehicleID = ? AND userID = ?";
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, vehicleID);
+            stmt.setInt(2, userID);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    int status = rs.getInt("status");
+                    return status == 0;  // 只有status=0才允许维修
+                } else {
+                    return false; // 车辆不存在或不属于该用户
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public void submitOrder(){
+
     }
 
 

@@ -35,10 +35,12 @@ public class UserMain {
                                 case "2":
                                     break;
                                 case "0":
-                                    break;
+                                    System.out.println("退出程序，感谢使用！");
+                                    MenuFlag = false;
                             }
                         } else {
                             System.out.println("登陆失败，请检查用户名或密码");
+                            MenuFlag = false;
                         }
                     }
                     break;

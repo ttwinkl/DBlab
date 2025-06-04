@@ -8,7 +8,7 @@ public class TechnicianUtils {
 
     public void printUserMenu(){
         System.out.println("============= 维修人员界面 ============");
-        System.out.println("1. 功能1");
+        System.out.println("1. 查看账户信息");
         System.out.println("2. 功能2");
         System.out.println("3. 功能3");
         System.out.println("0. 退出");
@@ -26,6 +26,27 @@ public class TechnicianUtils {
                     String skill = rs.getString("skill");
                     Float rate = rs.getFloat("hourlyRate");
                     System.out.println("欢迎回来，维修人员"+name+"；工种："+skill+"；时薪："+rate);
+                } else {
+                    System.out.println("查询出错");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void printInfo(int idNUM) {
+        String sql = "SELECT name , skill , hourlyRate FROM technician WHERE technicianID = ? ";
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1,idNUM);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    String name = rs.getString("name");
+                    String skill = rs.getString("skill");
+                    Float rate = rs.getFloat("hourlyRate");
+                    System.out.println("您是维修人员:"+name+"；工种："+skill+"；时薪："+rate);
+                    System.out.println(" ");
                 } else {
                     System.out.println("查询出错，有bug");
                 }

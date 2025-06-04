@@ -19,21 +19,26 @@ public class TechnicianMain {
             switch (input) {
                 case "1":
                     int idNUM = login(scanner);
-                    if(idNUM != -1){
-                        tech.printUserInfo(idNUM);
-                        tech.printUserMenu();
-                        System.out.print("请输入您的选择（数字）：");
-                        String userInput = scanner.nextLine().trim();
-                        switch (userInput){
-                            case "1":
-                                break;
-                            case "2":
-                                break;
-                            case "0":
-                                break;
+                    tech.printUserInfo(idNUM);
+                    while(MenuFlag) {
+                        if (idNUM != -1) {
+                            tech.printUserMenu();
+                            System.out.print("请输入您的选择（数字）：");
+                            String userInput = scanner.nextLine().trim();
+                            switch (userInput) {
+                                case "1":
+                                    tech.printInfo(idNUM);
+                                    break;
+                                case "2":
+                                    break;
+                                case "0":
+                                    System.out.print("退出程序，感谢使用！");
+                                    MenuFlag = false;
+                            }
+                        } else {
+                            System.out.println("登陆失败，请检查用户名或密码");
+                            MenuFlag = false;
                         }
-                    }else {
-                        System.out.println("登陆失败，请检查用户名或密码");
                     }
                     break;
                 case "0":
