@@ -8,6 +8,7 @@ public class UserMain {
 
 
     public static void main(String[] args) {
+        WorkOrderUtils workOrderUtils = new WorkOrderUtils();
         UserUtils user = new UserUtils();
         Scanner scanner = new Scanner(System.in);
         boolean MenuFlag = true;
@@ -33,6 +34,16 @@ public class UserMain {
                                     user.printUVehicleInfo(useridNUM);
                                     break;
                                 case "2":
+                                    System.out.println("请输入您要提交进行修理的车辆ID（数字）");
+                                    String userInputVID = scanner.nextLine().trim();
+                                    int Vid = Integer.parseInt(userInputVID);
+                                    System.out.println("请输入您车辆的维修类型（漆工、焊工、机修）");
+                                    String inputDescription = scanner.nextLine().trim();
+                                    user.submitOrder(useridNUM,Vid,inputDescription);
+                                    user.assignToRecord(useridNUM);
+                                    break;
+                                case "3":
+                                    user.printAllOrder(useridNUM);
                                     break;
                                 case "0":
                                     System.out.println("退出程序，感谢使用！");
