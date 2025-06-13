@@ -30,13 +30,26 @@ public class TechnicianMain {
                                     tech.printInfo(idNUM);
                                     break;
                                 case "2":
+                                    tech.recordMaterialUsage(scanner, idNUM);
                                     break;
                                 case "3":
                                     handlePendingOrders(scanner, tech, idNUM);  // 这里调用处理方法
                                     break;
+                                case "4":
+                                    tech.insertFeedback(scanner, idNUM);
+                                    break;
+                                case "5":
+                                    tech.queryHistoricalRecordsAndIncomeWithFeedback(idNUM);
+                                    break;
+                                case "6":
+                                    tech.finishRepair(scanner,idNUM);
+                                    break;
                                 case "0":
                                     System.out.print("退出程序，感谢使用！");
                                     MenuFlag = false;
+                                    break;
+                                default:
+                                    System.out.println("无效输入，请重新选择");
                             }
                         } else {
                             System.out.println("登陆失败，请检查用户名或密码");
