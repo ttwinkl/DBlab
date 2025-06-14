@@ -4,7 +4,7 @@ import java.util.Scanner;
 public class UserUtils {
     private static final String URL = "jdbc:mysql://localhost:3306/db1?useSSL=false&serverTimezone=UTC";
     private static final String USER = "root";
-    private static final String PASSWORD = "201407";
+    private static final String PASSWORD = "568923";
 
     WorkOrderUtils workOrderUtils = new WorkOrderUtils();
 
@@ -13,6 +13,7 @@ public class UserUtils {
         System.out.println("1. 查看您的车辆");
         System.out.println("2. 为您的车辆提交订单");
         System.out.println("3. 查询记录在您账户下的订单");
+        System.out.println("4. 登记您的车辆");
         System.out.println("0. 退出");
         System.out.println("=======================================");
     }
@@ -185,15 +186,16 @@ public class UserUtils {
 
     }
 
-    public void assignToRecord(int userID){
-        String sql = "SELECT orderID FROM workorder WHERE userID = ? ";
+    public void assignToRecord(int userID, int vehicleID) {
+        String sql = "SELECT orderID FROM workorder WHERE userID = ? AND vehicleID = ? AND assignment != '修理完毕' ";
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1,userID);
+            stmt.setInt(1, userID);
+            stmt.setInt(2, vehicleID);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {   // 一定要先调用next()
                     int orderID = rs.getInt("orderID");
-                    if(workOrderUtils.assignWorkOrderRandomly(orderID)){
+                    if (workOrderUtils.assignWorkOrderRandomly(orderID)) {
                         System.out.println("-----------------------");
                         System.out.println("分配成功");
                         System.out.println("-----------------------");
@@ -210,8 +212,27 @@ public class UserUtils {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
     }
 
+    public boolean registerVehicle(int userID, String license, boolean status) {
+        String insertSql = "INSERT INTO vehicle (userID, license, status) VALUES (?, ?, ?)";
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement stmt = conn.prepareStatement(insertSql)) {
+            stmt.setInt(1, userID);
+            stmt.setString(2, license);
+            stmt.setBoolean(3, status);
 
+            int rows = stmt.executeUpdate();
+            if (rows > 0) {
+                System.out.println("车辆登记成功。");
+                return true;
+            } else {
+                System.out.println("车辆登记失败。");
+                return false;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

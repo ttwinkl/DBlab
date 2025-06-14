@@ -4,7 +4,7 @@ import java.util.*;
 public class TechnicianMain {
     private static final String URL = "jdbc:mysql://localhost:3306/db1?useSSL=false&serverTimezone=UTC";
     private static final String USER = "root";
-    private static final String PASSWORD = "201407";
+    private static final String PASSWORD = "568923";
 
 
     public static void main(String[] args) {
@@ -43,6 +43,9 @@ public class TechnicianMain {
                                     break;
                                 case "6":
                                     tech.finishRepair(scanner,idNUM);
+                                    break;
+                                case "7":
+                                    tech.viewMyWorkOrdersAndRecords(idNUM);
                                     break;
                                 case "0":
                                     System.out.print("退出程序，感谢使用！");

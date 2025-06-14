@@ -13,7 +13,7 @@ public class DatabaseInitializer {
     // 数据库连接信息
     private static final String DB_URL = "jdbc:mysql://localhost:3306/db1?useSSL=false&serverTimezone=UTC";
     private static final String DB_USER = "root";
-    private static final String DB_PASSWORD = "201407";
+    private static final String DB_PASSWORD = "568923";
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);

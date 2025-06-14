@@ -5,7 +5,7 @@ import java.util.*;
 public class TechnicianUtils {
     private static final String URL = "jdbc:mysql://localhost:3306/db1?useSSL=false&serverTimezone=UTC";
     private static final String USER = "root";
-    private static final String PASSWORD = "201407";
+    private static final String PASSWORD = "568923";
 
     public void printUserMenu(){
         System.out.println("============= 维修人员界面 ============");
@@ -15,6 +15,7 @@ public class TechnicianUtils {
         System.out.println("4. 录入反馈，更新进展");
         System.out.println("5. 查询历史维修记录与工时费收入");
         System.out.println("6. 结束维修");
+        System.out.println("7. 查看自己参与的工单和维修记录");
         System.out.println("0. 退出");
         System.out.println("=======================================");
     }
@@ -59,6 +60,41 @@ public class TechnicianUtils {
             e.printStackTrace();
         }
     }
+
+    //查看技工的工单和维修记录
+    public void viewMyWorkOrdersAndRecords(int technicianID) {
+        String sql = "SELECT w.orderID, w.description, r.recordID, w.assignment " +
+                "FROM workorder w " +
+                "JOIN record r ON w.orderID = r.orderID " +
+                "WHERE r.technicianID = ?";
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, technicianID);
+            try (ResultSet rs = stmt.executeQuery()) {
+                boolean hasOrders = false;
+                while (rs.next()) {
+                    hasOrders = true;
+                    int orderID = rs.getInt("orderID");
+                    String description = rs.getString("description");
+                    String assignment = rs.getString("assignment");
+                    int recordID = rs.getInt("recordID");
+
+                    System.out.println("-----------------------");
+                    System.out.println("工单ID: " + orderID);
+                    System.out.println("维修记录ID: " + recordID);
+                    System.out.println("描述: " + description);
+                    System.out.println("状态: " + assignment);
+                    System.out.println("-----------------------");
+                }
+                if (!hasOrders) {
+                    System.out.println("您没有参与任何工单。");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * 查询技师所有待确认的工单
      */
@@ -88,10 +124,27 @@ public class TechnicianUtils {
      * 技师接受工单
      */
     public boolean acceptWorkOrder(int orderID, int technicianID) {
+        String selectRecordSql = "SELECT recordID FROM record WHERE orderID = ? AND technicianID = ? AND PJstatus = '待确认'";
         String updateOrderSql = "UPDATE workorder SET assignment = '已分配' WHERE orderID = ? AND assignment = '待确认'";
         String updateRecordSql = "UPDATE record SET PJstatus = '已同意', updateTime = NOW() WHERE orderID = ? AND technicianID = ? AND PJstatus = '待确认'";
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
             conn.setAutoCommit(false);
+            int recordID = -1;
+            // 先查询 recordID
+            try (PreparedStatement psSelect = conn.prepareStatement(selectRecordSql)) {
+                psSelect.setInt(1, orderID);
+                psSelect.setInt(2, technicianID);
+                try (ResultSet rs = psSelect.executeQuery()) {
+                    if (rs.next()) {
+                        recordID = rs.getInt("recordID");
+                    }
+                }
+            }
+            if (recordID == -1) {
+                System.out.println("未找到对应的待确认分配记录");
+                conn.rollback();
+                return false;
+            }
             try (PreparedStatement psOrder = conn.prepareStatement(updateOrderSql);
                  PreparedStatement psRecord = conn.prepareStatement(updateRecordSql)) {
                 psOrder.setInt(1, orderID);
@@ -102,8 +155,12 @@ public class TechnicianUtils {
                 int rowsRecord = psRecord.executeUpdate();
 
                 if (rowsOrder == 1 && rowsRecord == 1) {
+
                     conn.commit();
                     System.out.println("工单 " + orderID + " 已被接受");
+                    if (recordID != -1) {
+                        System.out.println("新维修记录(recordID)" + recordID + " 已生成");
+                    }
                     return true;
                 } else {
                     conn.rollback();
@@ -204,13 +261,14 @@ public class TechnicianUtils {
             double totalPrice = quantity * unitPrice;
 
             // 插入语句去掉totalPrice字段，让数据库自动计算
-            String insertSql = "INSERT INTO Material(recordID, materialName, quantity, unitPrice) VALUES (?, ?, ?, ?)";
+            String insertSql = "INSERT INTO Material(recordID, materialName, quantity, unitPrice, totalPrice) VALUES (?, ?, ?, ?, ?)";
 
             try (PreparedStatement insertPs = conn.prepareStatement(insertSql)) {
                 insertPs.setInt(1, recordID);
                 insertPs.setString(2, materialName);
                 insertPs.setInt(3, quantity);
                 insertPs.setDouble(4, unitPrice);
+                insertPs.setDouble(5, totalPrice);
 
                 int rows = insertPs.executeUpdate();
                 if (rows == 1) {

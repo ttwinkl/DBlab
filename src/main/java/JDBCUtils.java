@@ -5,7 +5,7 @@ import java.util.List;
 public class JDBCUtils {
     private static final String URL = "jdbc:mysql://localhost:3306/db1?useSSL=false&serverTimezone=UTC";
     private static final String USER = "root";
-    private static final String PASSWORD = "201407";
+    private static final String PASSWORD = "568923";
 
     static {
         try {

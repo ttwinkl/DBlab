@@ -4,7 +4,7 @@ import java.sql.*;
 public class UserMain {
     private static final String URL = "jdbc:mysql://localhost:3306/db1?useSSL=false&serverTimezone=UTC";
     private static final String USER = "root";
-    private static final String PASSWORD = "201407";
+    private static final String PASSWORD = "568923";
 
 
     public static void main(String[] args) {
@@ -40,10 +40,17 @@ public class UserMain {
                                     System.out.println("请输入您车辆的维修类型（漆工、焊工、机修）");
                                     String inputDescription = scanner.nextLine().trim();
                                     user.submitOrder(useridNUM,Vid,inputDescription);
-                                    user.assignToRecord(useridNUM);
+                                    user.assignToRecord(useridNUM,Vid);
                                     break;
                                 case "3":
                                     user.printAllOrder(useridNUM);
+                                    break;
+                                case "4": // 新增处理逻辑
+                                    System.out.println("请输入车辆牌号：");
+                                    String license = scanner.nextLine().trim();
+                                    System.out.println("请输入车辆状态（true表示不需要修理，false表示需要修理）：");
+                                    boolean status = Boolean.parseBoolean(scanner.nextLine().trim());
+                                    user.registerVehicle(useridNUM, license, status);
                                     break;
                                 case "0":
                                     System.out.println("退出程序，感谢使用！");

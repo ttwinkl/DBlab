@@ -6,7 +6,7 @@ import java.util.Random;
 public class WorkOrderUtils {
     private static final String URL = "jdbc:mysql://localhost:3306/db1?useSSL=false&serverTimezone=UTC";
     private static final String USER = "root";
-    private static final String PASSWORD = "201407";
+    private static final String PASSWORD = "568923";
 
     public boolean assignWorkOrderRandomly(int orderID) {
         String checkOrderSql = "SELECT assignment, description FROM workOrder WHERE orderID = ?";
@@ -32,6 +32,7 @@ public class WorkOrderUtils {
 
             if (!"待分配".equals(assignmentStatus) && !"已拒绝".equals(assignmentStatus)) {
                 System.out.println("工单状态不是待分配或已拒绝，不能进行分配");
+                System.out.println(orderID);
                 return false;
             }
 

@@ -27,6 +27,9 @@ public class Main {
                     System.out.println("欢迎用户！请输入下列相应编号继续操作：");
                     TechnicianMain.main(args);
                     break;
+                case "3":
+                    System.out.println("欢迎用户！请输入下列相应编号继续操作：");
+                    AdminMain.main(args);
                 default:
                     System.out.println("无效指令，请重新输入！");
             }
