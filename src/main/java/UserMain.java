@@ -43,7 +43,10 @@ public class UserMain {
                                     user.assignToRecord(useridNUM,Vid);
                                     break;
                                 case "3":
-                                    user.printAllOrder(useridNUM);
+                                    user.printAllOrdersWithFeedback(useridNUM);
+                                    break;
+                                case "4":
+                                    user.insertUserFeedbackByOrderID(scanner, useridNUM);
                                     break;
                                 case "4": // 新增处理逻辑
                                     System.out.println("请输入车辆牌号：");
