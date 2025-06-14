@@ -43,7 +43,10 @@ public class UserMain {
                                     user.assignToRecord(useridNUM);
                                     break;
                                 case "3":
-                                    user.printAllOrder(useridNUM);
+                                    user.printAllOrdersWithFeedback(useridNUM);
+                                    break;
+                                case "4":
+                                    user.insertUserFeedbackByOrderID(scanner, useridNUM);
                                     break;
                                 case "0":
                                     System.out.println("退出程序，感谢使用！");
