@@ -6,8 +6,9 @@ public class Main {
 
 
         Scanner scanner = new Scanner(System.in);
+        boolean exit = true;
 
-        while (true) {
+        while (exit) {
             // 打印指令菜单
             printMenu();
 
@@ -20,8 +21,7 @@ public class Main {
                 case "1":
                     System.out.println("欢迎用户！请输入下列相应编号继续操作：");
                     UserMain.main(args);
-                    scanner.close();
-                    return;
+                    break;
                 case "2":
 //                    待添加
                     System.out.println("欢迎用户！请输入下列相应编号继续操作：");
@@ -30,6 +30,11 @@ public class Main {
                 case "3":
                     System.out.println("欢迎用户！请输入下列相应编号继续操作：");
                     AdminMain.main(args);
+                    break;
+                case "0":
+                    exit = false;
+                    System.out.println("退出程序，感谢使用");
+                    break;
                 default:
                     System.out.println("无效指令，请重新输入！");
             }
@@ -40,6 +45,7 @@ public class Main {
         System.out.println("1. 您是User");
         System.out.println("2. 您是Technician");
         System.out.println("3. 您是管理员");
+        System.out.println("0. 退出程序");
         System.out.println("=============================");
     }
 }

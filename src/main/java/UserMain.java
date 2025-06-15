@@ -2,7 +2,7 @@ import java.util.Scanner;
 import java.sql.*;
 
 public class UserMain {
-    private static final String URL = "jdbc:mysql://localhost:3306/db1?useSSL=false&serverTimezone=UTC";
+    private static final String URL = "jdbc:mysql://localhost:3306/db2?useSSL=false&serverTimezone=UTC";
     private static final String USER = "root";
     private static final String PASSWORD = "568923";
 
@@ -45,9 +45,6 @@ public class UserMain {
                                 case "3":
                                     user.printAllOrdersWithFeedback(useridNUM);
                                     break;
-                                case "4":
-                                    user.insertUserFeedbackByOrderID(scanner, useridNUM);
-                                    break;
                                 case "4": // 新增处理逻辑
                                     System.out.println("请输入车辆牌号：");
                                     String license = scanner.nextLine().trim();
@@ -55,8 +52,11 @@ public class UserMain {
                                     boolean status = Boolean.parseBoolean(scanner.nextLine().trim());
                                     user.registerVehicle(useridNUM, license, status);
                                     break;
+                                case "5":
+                                    user.insertUserFeedbackByOrderID(scanner, useridNUM);
+                                    break;
                                 case "0":
-                                    System.out.println("退出程序，感谢使用！");
+                                    System.out.println("退出用户界面，返回主界面");
                                     MenuFlag = false;
                             }
                         } else {
@@ -66,9 +66,9 @@ public class UserMain {
                     }
                     break;
                 case "0":
-                    System.out.println("退出程序，感谢使用！");
-                    scanner.close();
-                    return; // 退出main方法，程序结束
+                    System.out.println("退出用户界面，返回主界面");
+                    MenuFlag = false;
+                    break; // 退出main方法，程序结束
                 default:
                     System.out.println("无效输入，请重新输入！");
             }

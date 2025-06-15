@@ -2,7 +2,7 @@ import java.sql.*;
 import java.util.Scanner;
 
 public class AdminMain {
-    private static final String URL = "jdbc:mysql://localhost:3306/db1?useSSL=false&serverTimezone=UTC";
+    private static final String URL = "jdbc:mysql://localhost:3306/db2?useSSL=false&serverTimezone=UTC";
     private static final String USER = "root";
     private static final String PASSWORD = "568923";
 
@@ -32,8 +32,8 @@ public class AdminMain {
                     break;
                 case "0":
                     System.out.println("退出程序，感谢使用！");
-                    scanner.close();
-                    return;
+                    menuFlag = false;
+                    break;
                 default:
                     System.out.println("无效输入，请重新输入！");
             }
@@ -153,6 +153,22 @@ public class AdminMain {
         System.out.print("请输入要删除的用户 ID: ");
         int userID = Integer.parseInt(scanner.nextLine());
 
+        // 检查该用户是否有未完成的维修工单
+        String checkSql = "SELECT COUNT(*) FROM workorder WHERE userID = ? AND assignment != '修理完毕'";
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
+            checkStmt.setInt(1, userID);
+            try (ResultSet rs = checkStmt.executeQuery()) {
+                if (rs.next() && rs.getInt(1) > 0) {
+                    System.out.println("该用户有未完成的维修工单，不能删除！");
+                    return;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return;
+        }
+
         String sql = "DELETE FROM users WHERE userID = ?";
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -213,19 +229,22 @@ public class AdminMain {
     }
 
     public static void addTechnician(Scanner scanner) {
-        System.out.print("请输入维修人员姓名: ");
+        System.out.print("请输入维修人员用户名: ");
         String name = scanner.nextLine();
+        System.out.print("请输入维修人员密码: ");
+        String password = scanner.nextLine();
         System.out.print("请输入维修人员技能: ");
         String skill = scanner.nextLine();
         System.out.print("请输入维修人员时薪: ");
         float hourlyRate = Float.parseFloat(scanner.nextLine());
 
-        String sql = "INSERT INTO technician (name, skill, hourlyRate) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO technician (name, password, skill, hourlyRate) VALUES (?, ?, ?, ?)";
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, name);
-            stmt.setString(2, skill);
-            stmt.setFloat(3, hourlyRate);
+            stmt.setString(2, password);
+            stmt.setString(3, skill);
+            stmt.setFloat(4, hourlyRate);
             int rows = stmt.executeUpdate();
             if (rows > 0) {
                 System.out.println("维修人员添加成功！");
@@ -411,7 +430,7 @@ public class AdminMain {
 
         switch (choice) {
             case "1":
-                viewWorkOrders();
+                viewWorkOrders(scanner);
                 break;
             case "2":
                 updateWorkOrder(scanner);
@@ -427,11 +446,12 @@ public class AdminMain {
         }
     }
 
-    public static void viewWorkOrders() {
+    public static void viewWorkOrders(Scanner scanner) {
         String sql = "SELECT * FROM workorder";
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
+            System.out.println("=== 全部工单信息 ===");
             while (rs.next()) {
                 int orderID = rs.getInt("orderID");
                 int userID = rs.getInt("userID");
@@ -440,6 +460,56 @@ public class AdminMain {
                 double totalCost = rs.getDouble("totalCost");
                 String description = rs.getString("description");
                 System.out.println("工单 ID: " + orderID + ", 用户 ID: " + userID + ", 车辆 ID: " + vehicleID + ", 分配状态: " + assignment + ", 总费用: " + totalCost + ", 描述: " + description);
+            }
+
+            while (true) {
+                System.out.print("请输入要查看详细信息的工单 ID（输入 0 退出）：");
+                String input = scanner.nextLine().trim();
+                try {
+                    int orderID = Integer.parseInt(input);
+                    if (orderID == 0) {
+                        break;
+                    }
+                    viewWorkOrderDetails(orderID);
+                } catch (NumberFormatException e) {
+                    System.out.println("输入无效，请输入有效的工单 ID 或 0 退出。");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void viewWorkOrderDetails(int orderID) {
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
+            // 查看维修记录
+            String recordSql = "SELECT * FROM record WHERE orderID = ?";
+            try (PreparedStatement stmt = conn.prepareStatement(recordSql)) {
+                stmt.setInt(1, orderID);
+                ResultSet rs = stmt.executeQuery();
+                System.out.println("=== 维修记录 ===");
+                while (rs.next()) {
+                    int recordID = rs.getInt("recordID");
+                    int technicianID = rs.getInt("technicianID");
+                    String PJstatus = rs.getString("PJstatus");
+                    Timestamp updateTime = rs.getTimestamp("updateTime");
+                    System.out.println("记录 ID: " + recordID + ", 维修人员 ID: " + technicianID + ", 状态: " + PJstatus + ", 更新时间: " + updateTime);
+                }
+            }
+
+            // 查看反馈情况
+            String feedbackSql = "SELECT * FROM feedback WHERE orderID = ?";
+            try (PreparedStatement stmt = conn.prepareStatement(feedbackSql)) {
+                stmt.setInt(1, orderID);
+                ResultSet rs = stmt.executeQuery();
+                System.out.println("=== 反馈情况 ===");
+                while (rs.next()) {
+                    int feedbackID = rs.getInt("feedbackID");
+                    String type = rs.getString("type");
+                    String content = rs.getString("content");
+                    Timestamp feedbackTime = rs.getTimestamp("feedbackTime");
+                    System.out.println("反馈 ID: " + feedbackID + ", 反馈类型: " + type + ", 反馈内容: " + content + ", 反馈时间: " + feedbackTime);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();

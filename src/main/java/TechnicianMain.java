@@ -2,7 +2,7 @@ import java.util.Scanner;
 import java.sql.*;
 import java.util.*;
 public class TechnicianMain {
-    private static final String URL = "jdbc:mysql://localhost:3306/db1?useSSL=false&serverTimezone=UTC";
+    private static final String URL = "jdbc:mysql://localhost:3306/db2?useSSL=false&serverTimezone=UTC";
     private static final String USER = "root";
     private static final String PASSWORD = "568923";
 
@@ -61,9 +61,10 @@ public class TechnicianMain {
                     }
                     break;
                 case "0":
-                    System.out.println("退出程序，感谢使用！");
-                    scanner.close();
-                    return; // 退出main方法，程序结束
+
+                    System.out.println("退出维修人员界面，返回主菜单");
+                    MenuFlag = false;
+                    break; // 返回主菜单
                 default:
                     System.out.println("无效输入，请重新输入！");
             }

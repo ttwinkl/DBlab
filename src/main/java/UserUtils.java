@@ -2,7 +2,7 @@ import java.sql.*;
 import java.util.Scanner;
 
 public class UserUtils {
-    private static final String URL = "jdbc:mysql://localhost:3306/db1?useSSL=false&serverTimezone=UTC";
+    private static final String URL = "jdbc:mysql://localhost:3306/db2?useSSL=false&serverTimezone=UTC";
     private static final String USER = "root";
     private static final String PASSWORD = "568923";
 
@@ -15,7 +15,7 @@ public class UserUtils {
         System.out.println("2. 为您的车辆提交订单");
         System.out.println("3. 查询记录在您账户下的订单");
         System.out.println("4. 登记您的车辆");
-        System.out.println("4. 反馈维修工单");
+        System.out.println("5. 反馈维修工单");
         System.out.println("0. 退出");
         System.out.println("=======================================");
     }
