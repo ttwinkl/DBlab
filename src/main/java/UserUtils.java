@@ -2,7 +2,7 @@ import java.sql.*;
 import java.util.Scanner;
 
 public class UserUtils {
-    private static final String URL = "jdbc:mysql://localhost:3306/db2?useSSL=false&serverTimezone=UTC";
+    private static final String URL = "jdbc:mysql://localhost:3306/db1?useSSL=false&serverTimezone=UTC";
     private static final String USER = "root";
     private static final String PASSWORD = "568923";
 
